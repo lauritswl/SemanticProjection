@@ -1,6 +1,7 @@
 from .Embedder import Embedder
 from .ProjectionAnalyzer import ProjectionAnalyzer
 import pandas as pd
+from pathlib import Path
 class SemanticProjector:
     """
     Class to handle the end-to-end process of embedding texts and projecting them onto a concept vector.
@@ -23,22 +24,14 @@ class SemanticProjector:
     def __init__(self, model_name="paraphrase-multilingual-mpnet-base-v2"):
         self.embedder = Embedder(model_name=model_name)
         self.projector = None
-    
+        # Path to the folder containing all concept vector CSVs
+        self.vectors_dir = Path(__file__).parent / "data" / "vectors"
+
     def project_texts(self, texts, concept_vector):
-        """
-        Embeds and projects a list of texts onto the sentiment concept vector.
-        
-        Args:
-            texts: list of str
-                The texts to be embedded and projected.
-            concept_vector: str
-                The name of semantic concept vector to use for projection.
-        Returns:
-            pandas.DataFrame
-                A DataFrame containing the original texts and their projections.
-         """
+        """Embeds and projects a list of texts onto a concept vector."""
         embeddings = self.embed_texts(texts)
-        projections = self.project_embeddings(embeddings, concept_vector)
+        vector_path = self.get_vector_path(concept_vector)
+        projections = self.project_embeddings(embeddings, vector_path)
         results = pd.DataFrame({
             "text": texts,
             "projection": projections
@@ -46,39 +39,28 @@ class SemanticProjector:
         return results
     
     def embed_texts(self, texts):
-        """
-        Embeds a list of texts.
-        
-        Args:
-            texts: list of str
-                The texts to be embedded.
-        Returns:
-            pandas.DataFrame
-                A DataFrame containing the embeddings and original texts.
-        """
-        embeddings = self.embedder.embed(
-            texts=texts)
+        """Embeds a list of texts."""
+        embeddings = self.embedder.embed(texts=texts)
         embeddings["text"] = texts  # Append text to embeddings
         return embeddings
 
-    def project_embeddings(self, embeddings, concept_vector):
-        """
-        Projects the given embeddings onto the sentiment concept vector and returns the projections.
-        
-        Args:
-            embeddings: pandas.DataFrame
-                The DataFrame containing the embeddings to be projected.
-            concept_vector: str
-                The name of semantic concept vector to use for projection.
-        
-        Returns:
-            pandas.Series
-                A Series containing the 1D coordinates of the projections.
-        """
+    def project_embeddings(self, embeddings, concept_vector_path):
+        """Projects the embeddings onto the specified concept vector CSV."""
         self.projector = ProjectionAnalyzer(
             matrix_project=embeddings,
             use_concept_vector=True,
-            concept_vector_path=f"src/SemanticProjection/data/vectors/{concept_vector}.csv"
+            concept_vector_path=str(concept_vector_path)
         )
         self.projector.project()
         return self.projector.projected_in_1D
+
+    def list_vectors(self):
+        """List all available concept vectors."""
+        return [f.stem for f in self.vectors_dir.glob("*.csv")]
+    
+    def get_vector_path(self, vector_name):
+        """Get full path to a vector CSV from its name."""
+        path = self.vectors_dir / f"{vector_name}.csv"
+        if not path.exists():
+            raise ValueError(f"Vector '{vector_name}' not found. Available vectors: {self.list_vectors()}")
+        return path
