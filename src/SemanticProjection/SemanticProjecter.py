@@ -1,5 +1,5 @@
-from src.SemanticProjection.Embedder import Embedder
-from src.SemanticProjection.ProjectionAnalyzer import ProjectionAnalyzer
+from .Embedder import Embedder
+from .ProjectionAnalyzer import ProjectionAnalyzer
 import pandas as pd
 class SemanticProjector:
     """
