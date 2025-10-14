@@ -12,7 +12,7 @@ class Embedder:
         self.device = "cuda" if torch.cuda.is_available() else "cpu" # Use GPU if available
         self.model = SentenceTransformer(model_name, device=self.device) # Load model
 
-    def embed(self, texts, cache_path=None, force_recompute=True):
+    def embed(self, texts, cache_path=None, force_recompute=False):
         """
         Embeds a list of texts into vectors.
         If cache_path is provided, saves/loads a CSV file with embeddings.

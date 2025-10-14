@@ -24,19 +24,28 @@ class SemanticProjector:
     def __init__(self, model_name="paraphrase-multilingual-mpnet-base-v2"):
         self.embedder = Embedder(model_name=model_name)
         self.projector = None
+        self.results = None
         # Path to the folder containing all concept vector CSVs
         self.vectors_dir = Path(__file__).parent / "data" / "vectors"
 
-    def project_texts(self, texts, concept_vector):
+    def project_texts(self, texts, concept_vector, force_recompute=True):
         """Embeds and projects a list of texts onto a concept vector."""
-        embeddings = self.embed_texts(texts)
+        embeddings = self.embed_texts(texts, force_recompute=force_recompute)
         vector_path = self.get_vector_path(concept_vector)
         projections = self.project_embeddings(embeddings, vector_path)
         results = pd.DataFrame({
             "text": texts,
             "projection": projections
         })
+        self.results = results
         return results
+    def Standardize(self):
+        """Standardizes the projection results to have mean 0 and std 1."""
+        if self.results is None:
+            raise ValueError("No results to standardize. Please run project_texts first.")
+        self.results["standardized_projection"] = (self.results["projection"] - self.results["projection"].mean()) / self.results["projection"].std()
+        return self.results
+
     
     def embed_texts(self, texts):
         """Embeds a list of texts."""
