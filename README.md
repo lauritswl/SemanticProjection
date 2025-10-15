@@ -1,5 +1,5 @@
+<h1 align="center">SemanticProjection</h1>
 This is my work in progress - Lightweight Semantic Projection Package.
-
 
 # Installation
 You can install `SemanticProjecter` via [pip] from the [git]:
