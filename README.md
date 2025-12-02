@@ -1,6 +1,4 @@
 <h1 align="center">SemanticProjection</h1>
-Beta release of the Lightweight Semantic Projection Package.
-
 # Installation
 You can install `SemanticProjecter` via [pip] from the [git]:
 ```bash
