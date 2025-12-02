@@ -1,4 +1,5 @@
 <h1 align="center">SemanticProjection</h1>
+
 # Installation
 You can install `SemanticProjecter` via [pip] from the [git]:
 ```bash
