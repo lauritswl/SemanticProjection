@@ -19,7 +19,7 @@ projector.project_texts(
     texts=list_of_texts,
     concept_vector="Sentiment"
 )
-# Add a standardized collumn - adds interpretability in larger datasets
+# Add a standardized column - adds interpretability in larger datasets
 projector.standardize()
 
 # Show results (stored in class atribute- self.results)
